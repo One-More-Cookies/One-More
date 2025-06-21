@@ -17,7 +17,7 @@
         <header>
             <h1 class="site-heading text-center text-faded d-none d-lg-block">
                 <span class="site-heading-upper text-primary mb-3">Because one is never enough</span>
-                <span class="site-heading-lower">One More...</span>
+                <span class="site-heading-lower">One More</span>
             </h1>
         </header>
         <!-- Navigation-->
@@ -51,42 +51,102 @@
                                 </p>
                                 <p>Ps. We're based in Cape Town - you lucky thing! We're baking right in your backyard.</p>
                                 <p>Go on… one more won’t hurt.</p>
-<div class="container py-5">
-  <h2 class="mb-4 text-center">Place Your Cookie Order</h2>
-  <form action="https://formspree.io/f/xyzjpevz" method="POST" class="mx-auto" style="max-width: 600px;">
-    
-    <div class="mb-3">
-      <label for="name" class="form-label">Name and Surname</label>
-      <input type="text" class="form-control" id="name" name="name" required>
-    </div>
-
-    <div class="mb-3">
-      <label for="email" class="form-label">Email Address</label>
-      <input type="email" class="form-control" id="email" name="email" required>
-    </div>
-
-    <div class="mb-3">
-      <label for="order" class="form-label">Your Cookie Order</label>
-      <textarea class="form-control" id="order" name="order" rows="5" required></textarea>
-    </div>
-
-    <!-- Hidden field for order number -->
-    <input type="hidden" name="order-number" id="order-number">
-
-    <button type="submit" class="btn btn-primary w-100">Send Order</button>
-  </form>
-</div>
 
 
 
 
-                                <p>Account Holder: Sophia-Maria du Plessis
-                                <br>Account Type: Current Account
-                                <br>Discovery Bank
-                                <br>Branch Code: 679000
-                                <br>BIC/SWIFT: DISCZAJJXXX
-                                <br>Account Number: 19266109636
-                                <br>REF: Your Full Name</p>
+                            <form id="cookieOrderForm" class="p-4 border rounded shadow-sm bg-white" style="max-width: 600px; margin: auto;">
+  <h3 class="mb-4 text-center">Place Your Cookie Order</h3>
+
+  <div class="mb-3">
+    <label for="email" class="form-label">Email address</label>
+    <input type="email" class="form-control" name="email" id="email" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="name" class="form-label">Name</label>
+    <input type="text" class="form-control" name="name" id="name" required>
+  </div>
+
+  <!-- Cookie inputs -->
+  <div class="mb-3">
+    <label for="cookie1" class="form-label">More PB (R75 per bag)</label>
+    <input type="number" class="form-control cookie-input" name="cookie1" id="cookie1" value="0" min="0" data-price="75">
+  </div>
+
+  <div class="mb-3">
+    <label for="cookie2" class="form-label">The Plain One (R75 per bag)</label>
+    <input type="number" class="form-control cookie-input" name="cookie2" id="cookie2" value="0" min="0" data-price="75">
+  </div>
+
+  <div class="mb-3">
+    <label for="cookie3" class="form-label">Salty C (R65 per bag)</label>
+    <input type="number" class="form-control cookie-input" name="cookie3" id="cookie3" value="0" min="0" data-price="65">
+  </div>
+
+  <div class="mb-3">
+    <label for="cookie4" class="form-label">Coffee Hit (R70 each)</label>
+    <input type="number" class="form-control cookie-input" name="cookie4" id="cookie4" value="0" min="0" data-price="70">
+  </div>
+
+  <div class="mb-3">
+    <label for="cookie4" class="form-label">Cookie Box (R225 each)</label>
+    <input type="number" class="form-control cookie-input" name="cookie5" id="cookie5" value="0" min="0" data-price="225">
+  </div>
+
+  <!-- Total display -->
+  <div class="mb-4">
+    <h5 class="text-end">Total: <span id="orderTotal">R0</span></h5>
+  </div>
+
+  <div class="d-grid">
+    <button type="submit" class="btn btn-primary">Submit Order</button>
+  </div>
+</form>
+
+<script>
+const inputs = document.querySelectorAll('.cookie-input');
+const totalDisplay = document.getElementById('orderTotal');
+
+function updateTotal() {
+  let total = 0;
+  inputs.forEach(input => {
+    const quantity = parseInt(input.value) || 0;
+    const price = parseFloat(input.dataset.price);
+    total += quantity * price;
+  });
+  totalDisplay.textContent = 'R' + total;
+  return total;
+}
+
+inputs.forEach(input => {
+  input.addEventListener('input', updateTotal);
+});
+
+document.getElementById('cookieOrderForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = new FormData(form);
+
+  // ⬇️ Add the total to the FormData before sending
+  const total = updateTotal(); // run and get current total
+  data.append('total', total);
+
+  fetch('https://script.google.com/macros/s/AKfycbw2aeHeBanjVabjxNq03wOk0zKhVB0Ad1jtw6cVKzy-BUUldmpbOkfsdpfQXHuZ42pqdA/exec', {
+    method: 'POST',
+    body: data
+  })
+  .then(res => res.text())
+  .then(msg => {
+    alert(msg);
+    form.reset();
+    updateTotal(); // clear total display
+  })
+  .catch(err => alert('Error: ' + err));
+});
+
+updateTotal(); // run on page load
+</script>
 
                             </div>
                     </div>
