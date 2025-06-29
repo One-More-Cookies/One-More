@@ -118,6 +118,9 @@
 <script>
 const inputs = document.querySelectorAll('.cookie-input');
 const totalDisplay = document.getElementById('orderTotal');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const form = document.getElementById('cookieOrderForm');
+const submitButton = form.querySelector('button[type="submit"]');
 
 function updateTotal() {
   let total = 0;
@@ -134,29 +137,39 @@ inputs.forEach(input => {
   input.addEventListener('input', updateTotal);
 });
 
-document.getElementById('cookieOrderForm').addEventListener('submit', function(e) {
+form.addEventListener('submit', function (e) {
   e.preventDefault();
-  const form = e.target;
-  const data = new FormData(form);
 
-  // ⬇️ Add the total to the FormData before sending
-  const total = updateTotal(); // run and get current total
+  // ⛔ Disable the button immediately
+  submitButton.disabled = true;
+
+  // 🌀 Show loading overlay
+  loadingOverlay.style.display = 'flex';
+
+  const data = new FormData(form);
+  const total = updateTotal();
   data.append('total', total);
 
   fetch('https://script.google.com/macros/s/AKfycbw2aeHeBanjVabjxNq03wOk0zKhVB0Ad1jtw6cVKzy-BUUldmpbOkfsdpfQXHuZ42pqdA/exec', {
     method: 'POST',
     body: data
   })
-  .then(res => res.text())
-.then(msg => {
-  window.location.href = "thankyou.html";
-})
-
-  .catch(err => alert('Error: ' + err));
+    .then(res => res.text())
+    .then(msg => {
+      // ✅ On success, redirect
+      window.location.href = "thankyou.html";
+    })
+    .catch(err => {
+      // 🔁 Re-enable submit button and hide loader if there's an error
+      loadingOverlay.style.display = 'none';
+      submitButton.disabled = false;
+      alert("Something went wrong. Please try again.\n\n" + err);
+    });
 });
 
-updateTotal(); // run on page load
+updateTotal();
 </script>
+
 
                             </div>
                     </div>
