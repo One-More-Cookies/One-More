@@ -115,13 +115,7 @@
   </div>
 </form>
 
-<style>
-  .btn-disabled {
-    opacity: 0.6;
-    pointer-events: none;
-    cursor: not-allowed;
-  }
-</style>
+
 
 <script>
 document.getElementById('cookieOrderForm').addEventListener('submit', function(e) {
@@ -129,10 +123,13 @@ document.getElementById('cookieOrderForm').addEventListener('submit', function(e
 
   const form = e.target;
   const submitButton = form.querySelector('button[type="submit"]');
+
+  // Disable the button visually and functionally
+  submitButton.disabled = true;
   submitButton.classList.add('btn-disabled');
   submitButton.textContent = "Submitting...";
 
-  // Prepare the form data
+  // Prepare form data
   const data = new FormData(form);
   const total = calculateTotal();
   data.append('total', total);
@@ -146,16 +143,18 @@ document.getElementById('cookieOrderForm').addEventListener('submit', function(e
     return response.text();
   })
   .then(() => {
-    window.location.href = "thankyou.html"; // ✅ Redirect
+    window.location.href = "thankyou.html";
   })
   .catch(err => {
-    alert("Something went wrong: " + err.message);
+    alert("Error: " + err.message);
     // Re-enable the button
+    submitButton.disabled = false;
     submitButton.classList.remove('btn-disabled');
     submitButton.textContent = "Submit Order";
   });
 });
 
+// Function to calculate and update total
 function calculateTotal() {
   const inputs = document.querySelectorAll('.cookie-input');
   let total = 0;
@@ -168,13 +167,20 @@ function calculateTotal() {
   return total;
 }
 
-// Recalculate total on load and input changes
+// Run on page load and input change
 window.addEventListener('load', calculateTotal);
 document.querySelectorAll('.cookie-input').forEach(input => {
   input.addEventListener('input', calculateTotal);
 });
 </script>
 
+<style>
+  .btn-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+</style>
 
 
 
