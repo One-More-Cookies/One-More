@@ -115,60 +115,63 @@
   </div>
 </form>
 
+<style>
+  .btn-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+</style>
+
 <script>
-const inputs = document.querySelectorAll('.cookie-input');
-const totalDisplay = document.getElementById('orderTotal');
-const loadingOverlay = document.getElementById('loadingOverlay');
-const form = document.getElementById('cookieOrderForm');
-const submitButton = form.querySelector('button[type="submit"]');
-
-function updateTotal() {
-  let total = 0;
-  inputs.forEach(input => {
-    const quantity = parseInt(input.value) || 0;
-    const price = parseFloat(input.dataset.price);
-    total += quantity * price;
-  });
-  totalDisplay.textContent = 'R' + total;
-  return total;
-}
-
-inputs.forEach(input => {
-  input.addEventListener('input', updateTotal);
-});
-
-form.addEventListener('submit', function (e) {
+document.getElementById('cookieOrderForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
-  // ⛔ Disable the button immediately
-  submitButton.disabled = true;
-
-  // 🌀 Show loading overlay
-  loadingOverlay.style.display = 'flex';
-
+  const form = e.target;
+  const submitButton = form.querySelector('button[type="submit"]');
   const data = new FormData(form);
-  const total = updateTotal();
+
+  // Disable visually before fetch begins
+  submitButton.classList.add('btn-disabled');
+  submitButton.textContent = "Submitting...";
+
+  const total = calculateTotal();
   data.append('total', total);
 
   fetch('https://script.google.com/macros/s/AKfycbw2aeHeBanjVabjxNq03wOk0zKhVB0Ad1jtw6cVKzy-BUUldmpbOkfsdpfQXHuZ42pqdA/exec', {
     method: 'POST',
     body: data
   })
-    .then(res => res.text())
-    .then(msg => {
-      // ✅ On success, redirect
-      window.location.href = "thankyou.html";
-    })
-    .catch(err => {
-      // 🔁 Re-enable submit button and hide loader if there's an error
-      loadingOverlay.style.display = 'none';
-      submitButton.disabled = false;
-      alert("Something went wrong. Please try again.\n\n" + err);
-    });
+  .then(res => res.text())
+  .then(() => {
+    window.location.href = "thankyou.html";
+  })
+  .catch(err => {
+    alert("Something went wrong. Please try again.");
+    // Re-enable in case of error
+    submitButton.classList.remove('btn-disabled');
+    submitButton.textContent = "Submit Order";
+  });
 });
 
-updateTotal();
+function calculateTotal() {
+  const inputs = document.querySelectorAll('.cookie-input');
+  let total = 0;
+  inputs.forEach(input => {
+    const quantity = parseInt(input.value) || 0;
+    const price = parseFloat(input.dataset.price);
+    total += quantity * price;
+  });
+  document.getElementById('orderTotal').textContent = 'R' + total;
+  return total;
+}
+
+window.addEventListener('load', calculateTotal);
+document.querySelectorAll('.cookie-input').forEach(input => {
+  input.addEventListener('input', calculateTotal);
+});
 </script>
+
 
 
                             </div>
