@@ -148,11 +148,10 @@ document.getElementById('cookieOrderForm').addEventListener('submit', function(e
     body: data
   })
   .then(res => res.text())
-  .then(msg => {
-    alert(msg);
-    form.reset();
-    updateTotal(); // clear total display
-  })
+.then(msg => {
+  window.location.href = "thank-you.html";
+})
+
   .catch(err => alert('Error: ' + err));
 });
 
