@@ -124,18 +124,31 @@
 </style>
 
 <script>
+const inputs = document.querySelectorAll('.cookie-input');
+const totalDisplay = document.getElementById('orderTotal');
+
+function updateTotal() {
+  let total = 0;
+  inputs.forEach(input => {
+    const quantity = parseInt(input.value) || 0;
+    const price = parseFloat(input.dataset.price);
+    total += quantity * price;
+  });
+  totalDisplay.textContent = 'R' + total;
+  return total;
+}
+
+inputs.forEach(input => {
+  input.addEventListener('input', updateTotal);
+});
+
 document.getElementById('cookieOrderForm').addEventListener('submit', function(e) {
   e.preventDefault();
-
   const form = e.target;
-  const submitButton = form.querySelector('button[type="submit"]');
   const data = new FormData(form);
 
-  // Disable visually before fetch begins
-  submitButton.classList.add('btn-disabled');
-  submitButton.textContent = "Submitting...";
-
-  const total = calculateTotal();
+  // ⬇️ Add the total to the FormData before sending
+  const total = updateTotal(); // run and get current total
   data.append('total', total);
 
   fetch('https://script.google.com/macros/s/AKfycbw2aeHeBanjVabjxNq03wOk0zKhVB0Ad1jtw6cVKzy-BUUldmpbOkfsdpfQXHuZ42pqdA/exec', {
@@ -143,34 +156,17 @@ document.getElementById('cookieOrderForm').addEventListener('submit', function(e
     body: data
   })
   .then(res => res.text())
-  .then(() => {
-    window.location.href = "thankyou.html";
-  })
-  .catch(err => {
-    alert("Something went wrong. Please try again.");
-    // Re-enable in case of error
-    submitButton.classList.remove('btn-disabled');
-    submitButton.textContent = "Submit Order";
-  });
+.then(msg => {
+  window.location.href = "thankyou.html";
+})
+
+  .catch(err => alert('Error: ' + err));
 });
 
-function calculateTotal() {
-  const inputs = document.querySelectorAll('.cookie-input');
-  let total = 0;
-  inputs.forEach(input => {
-    const quantity = parseInt(input.value) || 0;
-    const price = parseFloat(input.dataset.price);
-    total += quantity * price;
-  });
-  document.getElementById('orderTotal').textContent = 'R' + total;
-  return total;
-}
-
-window.addEventListener('load', calculateTotal);
-document.querySelectorAll('.cookie-input').forEach(input => {
-  input.addEventListener('input', calculateTotal);
-});
+updateTotal(); // run on page load
 </script>
+
+
 
 
 
